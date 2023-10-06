@@ -6,6 +6,10 @@ bootstrap = Bootstrap(app)
 
 @app.route("/")
 def home():
+    return render_template("products.html")
+
+@app.route("/search", methods = ['GET', 'POST'])
+def search():
     return render_template("search.html")
 
 
