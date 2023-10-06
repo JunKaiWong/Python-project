@@ -2,6 +2,7 @@ from flask import Flask, render_template, url_for, request
 from flask_bootstrap import Bootstrap
 import pandas as pd
 
+import csv
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -9,6 +10,10 @@ bootstrap = Bootstrap(app)
 @app.route("/")
 def home():
     return render_template("index.html")
+    with open("NLP_Dataset_Edits.csv", encoding="utf8") as file:
+        reader = csv.reader(file)
+        header = next(reader)
+        return render_template("products.html", header=header, rows=reader)
 
 @app.route("/search", methods=["POST", "GET"] )
 def search():
