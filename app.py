@@ -9,11 +9,15 @@ bootstrap = Bootstrap(app)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
-    with open("NLP_Dataset_Edits.csv", encoding="utf8") as file:
+        return render_template("index.html")
+
+@app.route("/products")
+def products():
+     with open("NLP_Dataset_Edits.csv", encoding="utf8") as file:
         reader = csv.reader(file)
         header = next(reader)
         return render_template("products.html", header=header, rows=reader)
+
 
 @app.route("/search", methods=["POST", "GET"] )
 def search():
@@ -24,7 +28,7 @@ def search():
         print(search_query)
         for index in data.index:
             product_name = data['Product'][index]
-            if search_query in product_name:
+            if search_query.lower() in product_name.lower():
                 results.append(data.iloc[index])
                 
         lengthlist= len(results)
