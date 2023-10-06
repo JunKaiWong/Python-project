@@ -34,8 +34,8 @@
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Overview</a>
                     <div style="margin-left: 5px">
                         <h4 style="padding: 20px;">Filter: </h4>
-                        <form method = "POST" class="form-inline my-2 my-lg-0" action="{{ url_for('search') }}">
-                            <input class="form-control mr-sm-2" type="search" placeholder="Filter" aria-label="Filter">
+                        <form method = "POST" class="form-inline my-2 my-lg-0" action="/search">
+                            <input class="form-control mr-sm-2" type="search" name="dataresult"   placeholder="Filter" aria-label="Filter">
                             <button  class="btn-outline-success my-2 my-sm-0" type="submit">Filter</button>
                           </form>
                     </div>
@@ -65,9 +65,9 @@
                                     </div>
                                 </li>
                             </ul>
-                            <form method = "POST" class="form-inline my-2 my-lg-0" action="{{ url_for('search') }}">
-                                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                                <button  class="btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                            <form method = "POST" class="form-inline my-2 my-lg-0" action="/search">
+                                <input class="form-control mr-sm-2" type="search" name="dataresult"  placeholder="Search" aria-label="Search" >
+                                <input type="submit" value="Search">
                               </form>
                         </div>
                     </div>
