@@ -1,7 +1,6 @@
 from flask import Flask, render_template, url_for, request
 from flask_bootstrap import Bootstrap
 import pandas as pd
-
 import csv
 
 app = Flask(__name__)
@@ -21,19 +20,29 @@ def products():
 
 @app.route("/search", methods=["POST", "GET"] )
 def search():
+
+
     if request.method == 'POST':
         search_query = request.form.get('dataresult')
         results = []
+        count = 0
         data = pd.read_pickle('NLP_Dataset.pkl')
+        print(type(data['Reviews'][0]))
         print(search_query)
         for index in data.index:
             product_name = data['Product'][index]
             if search_query.lower() in product_name.lower():
                 results.append(data.iloc[index])
+                count +=1
+                
+            if count == 50:
+                break
                 
         lengthlist= len(results)
         print(results)
         print(lengthlist)
+
+
     return render_template("search.html", results = results, lengthlist=lengthlist)
 
 

@@ -1,31 +1,32 @@
 {% extends "index.html" %} 
 {% block content %}
-<h3 style="text-align: center; padding: 20px;">Search Results..</h3>
-<table class="table">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">First</th>
-        <th scope="col">Last</th>
-        <th scope="col">Handle</th>
-      </tr>
-    </thead>
-    <tbody>
-     
-      <tr>
-        {% for i in range(1, lengthlist + 1) %}
-        <th scope="row">{{ i }}</th>
-        {% endfor %}
-    
-        {% for item in results %}
-        <td>{{ item.Product }}</td>
-        <td>{{ item.Category }}</td>
-        <td>{{ item.URL }}</td>
+<h3 style="text-align: center; padding: 20px;">Top 50 Results</h3>
+<div class="talbe-responsive">
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Product</th>
+      <th scope="col">Category</th>
+      <th scope="col">Price</th>
+      <th scope="col">Rating</th>
+      <th scope="col">Reviews</th>
+      <th scope="col">URL</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      {% for item in results %}
+        <td >{{ item.Product }}</td>
+        <td >{{ item.Category }}</td>
+        <td >{{ item.Price }}</td>
+        <td >{{ item.Stars  }}</td>
+        <td >{{ item.Reviews }}</td>
+        <td style ="white-space: normal;" ><a href ="{{ item.URL }}" > Link</a></td>      
       </tr>
       {% endfor %}
-   
-    </tbody>
-  </table>
- 
+  </tbody>
+</table>
+</div>
+
 {% endblock %}
 
