@@ -70,7 +70,7 @@ def filter():
                     count +=1
                     # print("This is results",results)
         
-     return render_template("filter.html", select=select, header=header, results=results)
+     return render_template("filter.html", select=select, header=header, results=results, count=count)
 
 
 if __name__ == '__main__':

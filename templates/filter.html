@@ -34,11 +34,14 @@
           </tr>
           {% for row in results %}
         <tr>
-             {% for element in row %}
-             {% if element[6] == element %}
-             <td style ="white-space: normal;" ><a href ="{{ element }}" >Product Link</a></td>  
+             {% for element in range(6) %}
+
+             {% if element == 5 %}
+             <td style ="white-space: normal;" ><a href ="{{row[element]}}" >ProductLink</a></td>  
+            
              {% else %}
-            <td>{{ element }}</td>
+             <td>{{ row[element] }}</td>
+            
             {% endif %}
             {% endfor %}
         </tr>
