@@ -1,0 +1,69 @@
+{% extends "index.html" %} 
+{% block content %}
+<h3 style="text-align: center; padding: 20px;">Filter by Categories</h3>
+
+<form class="form-inline" method="POST">
+    <select id="category" name="category" style="width: 30%; height: 15%; font-size: 20px; margin-left: 33%; text-align: center;">
+        <option id="Accessories" value="Accessories">Accessories</option>
+        <option id="GraphicsCards" value="Graphics Cards">Graphics Cards</option>
+        <option id="Storage" value="Storage">Storage</option>
+        <option id="RAM" value="RAM">RAM</option>
+        <option id="Laptops" value="Laptops">Laptops</option>
+        <option id="Processors" value="Processors">Processors</option>
+        <option id="Smartphones" value="Smartphones">Smartphones</option>
+        <option id="Smartwatches" value="Smartwatches">Smartwatches</option>
+    </select>
+    <button type="submit" class="btn-outline-success my-2 my-sm-0" style="width: 5%; margin-left: 1%;">Enter</button>
+</form>
+
+<!-- {{results}} -->
+<div class="talbe-responsive" style="margin-top: 10px;">
+    <table>
+        <!-- <tr>
+            {% for col in header %}
+            <th>{{col}}</th>
+            {% endfor %}
+        </tr> -->
+        <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Category</th>
+            <th scope="col">Price</th>
+            <th scope="col">Rating</th>
+            <th scope="col">Summary</th>
+            <th scope="col">URL</th>
+          </tr>
+          {% for row in results %}
+        <tr>
+             {% for element in row %}
+             {% if element[6] == element %}
+             <td style ="white-space: normal;" ><a href ="{{ element }}" >Product Link</a></td>  
+             {% else %}
+            <td>{{ element }}</td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+         {% endfor %} 
+    </table>
+</div>
+
+
+
+
+
+
+<!-- <table id="demo">
+<tr>
+  {% for col in header %}
+  <th>{{col}}</th>
+  {% endfor %}
+</tr>
+{% for row in rows %}
+  <tr>
+    {% for col in row %}
+    <td>{{ col }}</td>
+    {% endfor %}
+  </tr>
+{% endfor %}
+</table> -->
+    
+{% endblock %}

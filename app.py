@@ -45,6 +45,33 @@ def search():
 
     return render_template("search.html", results = results, lengthlist=lengthlist)
 
+@app.route("/filter", methods=["POST", "GET"])
+def filter():
+     select = request.form.get('category')
+     results = []
+     data = []
+     count = 0
+     with open("NLP_Dataset_Edited.csv", encoding="utf8") as file:
+        reader = csv.reader(file)
+        header = next(reader)
+        for row in reader: 
+            newRow = row[:7]
+            data.append(newRow)
+        
+
+
+        for i in range(len(data)):
+            if select == data[i][1]:
+                if count == 50:
+                    print("break triggered")
+                    break
+                else:
+                    results.append(data[i])
+                    count +=1
+                    # print("This is results",results)
+        
+     return render_template("filter.html", select=select, header=header, results=results)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port = 8000)
