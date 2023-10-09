@@ -1,6 +1,10 @@
 {% extends "index.html" %} 
 {% block content %}
 <h3 style="text-align: center; padding: 20px;">Top 50 Results</h3>
+<h1>Export CSV</h1>
+<form action="/export_csv">
+    <button type="submit">Export CSV</button>
+</form>
 <div class="talbe-responsive">
 <table>
   <thead>
@@ -15,7 +19,7 @@
   </thead>
   <tbody>
     <tr>
-      {% for item in results %}
+      {% for item in sorted_results %}
         <td >{{ item.Product }}</td>
         <td >{{ item.Category }}</td>
         <td >{{ item.Price }}</td>

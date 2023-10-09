@@ -1,10 +1,13 @@
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, Response, send_file, redirect
 from flask_bootstrap import Bootstrap
 import pandas as pd
 import csv
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
+
+searchresults = []
+sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
 
 @app.route("/")
 def home():
@@ -21,10 +24,9 @@ def products():
 @app.route("/search", methods=["POST", "GET"] )
 def search():
 
-
     if request.method == 'POST':
         search_query = request.form.get('dataresult')
-        results = []
+        
         count = 0
         data = pd.read_pickle('NLP_Dataset.pkl')
         print(type(data['Reviews'][0]))
@@ -32,18 +34,46 @@ def search():
         for index in data.index:
             product_name = data['Product'][index]
             if search_query.lower() in product_name.lower():
-                results.append(data.iloc[index])
+                searchresults.append(data.iloc[index])
+                sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
                 count +=1
                 
             if count == 50:
                 break
                 
-        lengthlist= len(results)
-        print(results)
+        lengthlist= len(searchresults)
+        print(searchresults)
         print(lengthlist)
 
 
-    return render_template("search.html", results = results, lengthlist=lengthlist)
+    return render_template("search.html", sorted_results = sorted_results, lengthlist=lengthlist)
+
+@app.route("/export_csv")
+def export_csv():
+# Convert the list of dictionaries to a Pandas DataFrame
+    df = pd.DataFrame(searchresults)
+
+# Export the DataFrame to a CSV file
+    df.to_csv('output.csv', index=False)  
+    filename = 'output.csv'
+    return send_file(filename , as_attachment= True)
+
+"""@app.route('/viewresult', methods=["POST", "GET"] )
+def viewresult():
+    if request.method == 'POST':
+        productname = request.form.get('productname')
+        viewitem=[]
+        data = pd.read_pickle('NLP_Dataset.pkl')
+        print(productname)
+        for index in data.index:
+            product_name = data['Product'][index]
+            if productname in product_name:
+                viewitem.append(data.iloc[index])
+        print(viewitem )
+        return render_template('viewresult.html',viewitem=viewitem)"""
+
+
+
 
 @app.route("/filter", methods=["POST", "GET"])
 def filter():
