@@ -46,6 +46,9 @@
 
              {% if element == 4 %}
              <td style ="white-space: normal;" ><a href ="{{row[element]}}" >ProductLink</a></td>  
+
+             {% elif element == 1 %}
+             <td style ="white-space: normal;" ><a href ="filter/{{row[element]}}" >{{row[element]}}</a></td>  
             
              {% else %}
              <td>{{ row[element] }}</td>

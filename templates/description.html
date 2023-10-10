@@ -1,0 +1,28 @@
+{% extends "index.html" %} 
+{% block content %}
+<table style="margin-top: 5%;">
+    <tr>
+        <td>Product Name:</td>
+        <td>{{name}}</td>
+    </tr>
+
+    <tr>
+        <td>Sentiment:</td>
+        <td>{{sentiment}}</td>
+    </tr>
+
+    <tr>
+        <td>Reviews:</td>
+        <td>{{reviews}}</td>
+    </tr>
+
+    <tr>
+        <td>NLP Review:</td>
+        <td>{{nlp_review}}</td>
+    </tr>
+    <tr>
+        <td>Confidence:</td>
+        <td>{{confidence}}</td>
+    </tr>
+</table>
+{% endblock %}

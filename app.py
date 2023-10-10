@@ -102,6 +102,8 @@ def filter():
         reader = csv.reader(file)
         for row in reader: 
             newRow = row[:7]
+            edits = newRow[1].replace("/"," or ")
+            newRow[1] = edits 
             data.append(newRow)
         # print(data)
 
@@ -126,6 +128,29 @@ def export_filter():
     df.to_csv('output.csv', index=False)  
     filename = 'output.csv'
     return send_file(filename , as_attachment= True)
+
+@app.route("/filter/<product>", methods=["GET"])
+def filter_next(product):
+    name = ""
+    reviews = ""
+    sentiment = ""
+    confidence = ""
+    nlp_review = ""
+    with open("NLP_Dataset_Cut.csv", encoding="utf8") as file:
+        reader = csv.reader(file)
+        for row in reader: 
+            newRow = row[7:11]
+
+            if row[1].replace("/", " or ") == product:
+                name = row[1]
+                reviews = newRow[0]
+                sentiment = newRow[1]
+                confidence = newRow[2]
+                nlp_review = newRow[3]
+               
+        
+    return render_template('description.html', product=product, reviews=reviews, sentiment=sentiment, confidence=confidence, nlp_review = nlp_review, name=name)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port = 8000)
