@@ -15,6 +15,9 @@
     </select>
     <button type="submit" class="btn-outline-success my-2 my-sm-0" style="width: 5%; margin-left: 1%;">Enter</button>
 </form>
+<form action="/export_filter">
+    <button type="submit">Export Category Results</button>
+</form>
 
 <!-- {{results}} -->
 <div class="talbe-responsive" style="margin-top: 10px;">
@@ -25,19 +28,27 @@
             {% endfor %}
         </tr> -->
         <tr>
+            <th scope="col">ASIN</th>
             <th scope="col">Product</th>
             <th scope="col">Category</th>
             <th scope="col">Price</th>
-            <th scope="col">Rating</th>
-            <th scope="col">Summary</th>
             <th scope="col">URL</th>
+            <th scope="col">Stars</th>
+            <!-- <th scope="col">NLP_Reviews</th> -->
+            <th scope="col">Summary</th>
+            <!-- <th scope="col">Sentiment</th>
+            <th scope="col">Confidence</th> -->
+            
           </tr>
           {% for row in results %}
         <tr>
-             {% for element in range(6) %}
+             {% for element in range(7) %}
 
-             {% if element == 5 %}
+             {% if element == 4 %}
              <td style ="white-space: normal;" ><a href ="{{row[element]}}" >ProductLink</a></td>  
+
+             {% elif element == 1 %}
+             <td style ="white-space: normal;" ><a href ="filter/{{row[element]}}" >{{row[element]}}</a></td>  
             
              {% else %}
              <td>{{ row[element] }}</td>
