@@ -34,7 +34,7 @@ def search():
         data = pd.read_csv('NLP_Dataset_Cut.csv')     
 
         for index in data.index:
-            product_name = data['Product'][index]
+            product_name = data['Product'][index].replace("/", " ")
             if search_query.lower() in product_name.lower():
                 searchresults.append(data.iloc[index])
                 count +=1
@@ -48,7 +48,7 @@ def search():
        
             
         print(search_query.lower())
-        #print(filteredsorted_results)
+        print(searchresults)
         print(count)
 
     return render_template("search.html", filteredsorted_results = filteredsorted_results)
@@ -64,21 +64,18 @@ def export_csv():
     filename = 'output.csv'
     return send_file(filename , as_attachment= True)
 
-"""@app.route('/viewresult', methods=["POST", "GET"] )
-def viewresult():
-    if request.method == 'POST':
-        productname = request.form.get('productname')
-        viewitem=[]
-        data = pd.read_pickle('NLP_Dataset.pkl')
-        print(productname)
-        for index in data.index:
-            product_name = data['Product'][index]
-            if productname in product_name:
-                viewitem.append(data.iloc[index])
-        print(viewitem )
-        return render_template('viewresult.html',viewitem=viewitem)"""
+@app.route("/search/<product>", methods=[ "GET"] )
+def viewresult(product):
+    productdisplay =[]
+    data = pd.read_csv('NLP_Dataset_Cut.csv')  
+    for index in data.index:
+        product_name = data['Product'][index]
+        if product in product_name.replace("/", " or "):
+            productdisplay.append(data.iloc[index])
+    print(product)
+    print(productdisplay)
 
-
+    return render_template("searchdiscription.html", product=product, productdisplay=productdisplay )
 
 
 @app.route("/filter", methods=["POST", "GET"])
