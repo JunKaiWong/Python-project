@@ -1,12 +1,15 @@
 from flask import Flask, render_template, url_for, request, Response, send_file, redirect
 from flask_bootstrap import Bootstrap
 import pandas as pd
+from bs4 import BeautifulSoup
 import csv
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
-filteredsorted_results = []
+searchresults = []
+filterResults = []
+sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
 
 
 @app.route("/")
@@ -37,30 +40,26 @@ def search():
             product_name = data['Product'][index]
             if search_query.lower() in product_name.lower():
                 searchresults.append(data.iloc[index])
+                sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
                 count +=1
+                
+            if count == 50:
+                break
+                
+        lengthlist= len(searchresults)
+        print(searchresults)
+        print(lengthlist)
 
-        sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
 
-        if len(sorted_results) >= 50:
-            filteredsorted_results = sorted_results[:51]
-        else:
-            filteredsorted_results = sorted_results
-       
-            
-        print(search_query.lower())
-        #print(filteredsorted_results)
-        print(count)
+    return render_template("search.html", sorted_results = sorted_results, lengthlist=lengthlist)
 
-    return render_template("search.html", filteredsorted_results = filteredsorted_results)
-
-@app.route("/export_csv" ,methods=['GET'])
+@app.route("/export_csv")
 def export_csv():
 # Convert the list of dictionaries to a Pandas DataFrame
-    df = pd.DataFrame(filteredsorted_results)
-    print(df.info)
+    df = pd.DataFrame(searchresults)
 
 # Export the DataFrame to a CSV file
-    df.to_csv('output.csv', index=False, encoding='utf-8-sig')  
+    df.to_csv('output.csv', index=False)  
     filename = 'output.csv'
     return send_file(filename , as_attachment= True)
 
@@ -82,32 +81,42 @@ def viewresult():
 
 
 @app.route("/filter", methods=["POST", "GET"])
+
 def filter():
-     select = request.form.get('category')
-     results = []
-     data = []
-     count = 0
-     with open("NLP_Dataset_Edited.csv", encoding="utf8") as file:
+    global results
+    results = []
+    select = request.form.get('category')
+    data = []
+    count = 0
+
+    with open("NLP_Dataset_Cut.csv", encoding="utf8") as file:
         reader = csv.reader(file)
-        header = next(reader)
         for row in reader: 
             newRow = row[:7]
             data.append(newRow)
-        
+        # print(data)
 
 
         for i in range(len(data)):
-            if select == data[i][1]:
+            if select == data[i][2]:
                 if count == 50:
                     print("break triggered")
                     break
                 else:
                     results.append(data[i])
                     count +=1
-                    # print("This is results",results)
         
-     return render_template("filter.html", select=select, header=header, results=results, count=count)
+    return render_template("filter.html", select=select, results=results, count=count)
 
+@app.route("/export_filter", methods=["POST", "GET"])
+def export_filter():
+
+    df = pd.DataFrame(results)
+    df.columns = ['ASIN','Product', 'Category', 'Price', 'URL', 'Stars', 'Summary']
+    # Export the DataFrame to a CSV file
+    df.to_csv('output.csv', index=False)  
+    filename = 'output.csv'
+    return send_file(filename , as_attachment= True)
 
 if __name__ == '__main__':
     app.run(debug=True, port = 8000)
