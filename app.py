@@ -6,8 +6,8 @@ import csv
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
-searchresults = []
-sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
+filteredsorted_results = []
+
 
 @app.route("/")
 def home():
@@ -24,37 +24,43 @@ def products():
 @app.route("/search", methods=["POST", "GET"] )
 def search():
 
+    global filteredsorted_results
+
     if request.method == 'POST':
-        search_query = request.form.get('dataresult')
-        
+        search_query = request.form.get('dataresult')    
+        searchresults = []
+        sorted_results=[]
         count = 0
-        data = pd.read_pickle('NLP_Dataset.pkl')
-        print(type(data['Reviews'][0]))
-        print(search_query)
+        data = pd.read_csv('NLP_Dataset_Cut.csv')     
+
         for index in data.index:
             product_name = data['Product'][index]
             if search_query.lower() in product_name.lower():
                 searchresults.append(data.iloc[index])
-                sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
                 count +=1
-                
-            if count == 50:
-                break
-                
-        lengthlist= len(searchresults)
-        print(searchresults)
-        print(lengthlist)
 
+        sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
 
-    return render_template("search.html", sorted_results = sorted_results, lengthlist=lengthlist)
+        if len(sorted_results) >= 50:
+            filteredsorted_results = sorted_results[:51]
+        else:
+            filteredsorted_results = sorted_results
+       
+            
+        print(search_query.lower())
+        #print(filteredsorted_results)
+        print(count)
 
-@app.route("/export_csv")
+    return render_template("search.html", filteredsorted_results = filteredsorted_results)
+
+@app.route("/export_csv" ,methods=['GET'])
 def export_csv():
 # Convert the list of dictionaries to a Pandas DataFrame
-    df = pd.DataFrame(searchresults)
+    df = pd.DataFrame(filteredsorted_results)
+    print(df.info)
 
 # Export the DataFrame to a CSV file
-    df.to_csv('output.csv', index=False)  
+    df.to_csv('output.csv', index=False, encoding='utf-8-sig')  
     filename = 'output.csv'
     return send_file(filename , as_attachment= True)
 
