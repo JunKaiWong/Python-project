@@ -12,8 +12,6 @@ import base64
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
-filteredsorted_results = []
-
 def str_to_list(review_str):
     return ast.literal_eval(review_str)
 
