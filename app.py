@@ -10,7 +10,7 @@ filteredsorted_results = []
 
 @app.route("/")
 def home():
-        return render_template("index.html")
+        return render_template("DataVisualisation.html")
 
 
 @app.route("/search", methods=["POST", "GET"] )
@@ -52,8 +52,8 @@ def export_csv():
     df = pd.DataFrame(filteredsorted_results)
 
 # Export the DataFrame to a CSV file
-    df.to_csv('filter_output.csv', index=False, encoding='utf-8-sig')  
-    filename = 'filter_output.csv'
+    df.to_csv('search_output.csv', index=False, encoding='utf-8-sig')  
+    filename = 'search_output.csv'
     return send_file(filename , as_attachment= True)
 
 @app.route("/search/<product>", methods=[ "GET"] )
@@ -132,8 +132,8 @@ def export_filter():
     df.columns = ['ASIN','Product', 'Category', 'Price', 'URL', 'Stars', 'Summary']
 
     # Export the DataFrame to a CSV file
-    df.to_csv('output.csv', index=False, encoding='utf-8-sig')  
-    filename = 'output.csv'
+    df.to_csv('filter_output.csv', index=False, encoding='utf-8-sig')  
+    filename = 'filter_output.csv'
     return send_file(filename , as_attachment= True)
 
 @app.route("/filter/<product>", methods=["GET"])

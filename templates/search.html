@@ -5,16 +5,16 @@
 <form action="/export_csv">
     <button type="submit">Export CSV</button>
 </form>
-<div class="talbe-responsive">
+<div class="table-responsive">
 <table>
   <thead>
     <tr>
       <th scope="col">Product</th>
       <th scope="col">Category</th>
       <th scope="col">Price</th>
-      <th scope="col">Rating</th>
-      <th scope="col">Summary</th>
       <th scope="col">URL</th>
+      <th scope="col">Stars</th>
+      <th scope="col">Summary</th>
     </tr>
   </thead>
   <tbody>
@@ -23,9 +23,10 @@
       <td > <a href ="search/{{item.ASIN}}">{{ item.Product }}</a></td>
         <td >{{ item.Category }}</td>
         <td >{{ item.Price }}</td>
+        <td style ="white-space: normal;" ><a href ="{{ item.URL }}" > ProductLink</a></td>     
         <td >{{ item.Stars  }}</td>
         <td >{{ item.Summary }}</td>
-        <td style ="white-space: normal;" ><a href ="{{ item.URL }}" > Link</a></td>      
+         
       </tr>
       {% endfor %}
   </tbody>
