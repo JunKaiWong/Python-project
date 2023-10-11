@@ -28,7 +28,7 @@
             {% endfor %}
         </tr> -->
         <tr>
-            <th scope="col">ASIN</th>
+           
             <th scope="col">Product</th>
             <th scope="col">Category</th>
             <th scope="col">Price</th>
@@ -44,10 +44,10 @@
         <tr>
              {% for element in range(7) %}
 
-             {% if element == 4 %}
-             <td style ="white-space: normal;" ><a href ="{{row[element]}}" >ProductLink</a></td>  
+             {% if element == 3 %}
+             <td style ="white-space: normal;" ><a href ="{{row[element]}}" >Link</a></td>  
 
-             {% elif element == 1 %}
+             {% elif element == 0 %}
              <td style ="white-space: normal;" ><a href ="filter/{{row[element]}}" >{{row[element]}}</a></td>  
             
              {% else %}

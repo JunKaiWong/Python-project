@@ -78,12 +78,15 @@ def viewresult(product):
 
 def filter():
     # var results is a global variable
-    global results
+    global filterFullResults
 
     #creating new variables for storing csv data
     results = []
     data = []
+    filterFullResults  = []
+    newRowAll = []
     count = 0
+    counter2 = 0
 
     # get category name from drop down list in html
     select = request.form.get('category')
@@ -96,40 +99,58 @@ def filter():
         #looping the csv file data
         for row in reader:
             # get all information from column 1 to 6 and insert column 8 for filter display
-            newRow = row[:6] 
+            newRow = row[1:6] 
             newRow.insert(6, row[8])
-            
+
+            newRowAll.append(row)
+           
             # convert all product names that have / to 'or' to allow url access
-            edits = newRow[1].replace("/"," or ")
-            newRow[1] = edits 
+            edits = newRow[0].replace("/"," or ")
+            newRow[0] = edits 
             
             # append newRow to data
             data.append(newRow)
-        # print(data)
+
+            #sort data based on rating(highest to lowest)
+            data =  sorted(data, key = lambda x: x[4], reverse=True)
 
         #loop the range of data length 
         for i in range(len(data)):
             # check if category user chose match with the Category in the data column
-            if select == data[i][2]:
+
+            if select == data[i][1]:
                 # display only 50 data
-                if count == 50:
+                if count >= 50:
                     break
                 else:
+                    count +=1
                     # if count has not reached 50  continue appending data to results list for display
                     results.append(data[i])
-                    count +=1
+
+        # looping range of newRowAll Length
+        for index in range(len(newRowAll)):
+            # display only 50 data for all data columns
+            if select == newRowAll[index][2]:
+                
+                if counter2 >= 50:
+                    break
+                else:
+                    #append all the data to filterFullResults to be exported into csv
+                    counter2 +=1
+                    filterFullResults.append(newRowAll[index])
+                    # filterFullResults = sorted(filterFullResults, key = lambda x: x[4], reverse=True )
+           
+                
 
     # run the filter.html template and pass variables to the html    
-    return render_template("filter.html", select=select, results=results, count=count)
+    return render_template("filter.html", select=select, results=results, count=count, filterFullResults=filterFullResults)
 
 @app.route("/export_filter", methods=["POST", "GET"])
 def export_filter():
 
     #Convert results list to dataframe
-    df = pd.DataFrame(results)
-
-    # add new header in dataframe
-    df.columns = ['ASIN','Product', 'Category', 'Price', 'URL', 'Stars', 'Summary']
+    df = pd.DataFrame(filterFullResults)
+    df.columns = ['ASIN','Product', 'Category', 'Price', 'URL', 'Stars','Reviews', 'NLP_Reviews', 'Summary', 'Sentiment', 'Confidence']
 
     # Export the DataFrame to a CSV file
     df.to_csv('filter_output.csv', index=False, encoding='utf-8-sig')  
