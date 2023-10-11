@@ -152,15 +152,15 @@ def filter_next(product):
 
         # loop csv file to retieve column 7,8,9,10
         for row in reader: 
-            newRow = row[7:11]
+            
 
             # check if product name matches 
             if row[1].replace("/", " or ") == product:
                 name = row[1]
-                reviews = newRow[0]
-                sentiment = newRow[1]
-                confidence = newRow[2]
-                nlp_review = newRow[3]
+                reviews = row[6]
+                sentiment = row[9]
+                confidence = round(float(row[10]),2)
+                nlp_review = row[7]
                
     # return the description.html template to display to user 
     return render_template('description.html', product=product, reviews=reviews, sentiment=sentiment, confidence=confidence, nlp_review = nlp_review, name=name)
