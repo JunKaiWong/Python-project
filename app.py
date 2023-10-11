@@ -9,7 +9,6 @@ bootstrap = Bootstrap(app)
 
 filteredsorted_results = []
 
-
 @app.route("/")
 def home():
         return render_template("index.html")
@@ -35,9 +34,13 @@ def search():
         data = pd.read_csv('NLP_Dataset_Cut (1).csv')     
 
         for index in data.index:
-            product_name = data['Product'][index].replace("/", " ")
+            product_name = data['Product'][index]
+            
+            # data['Product'][index] = data['Product'][index].replace("/", " or ")
+          
             if search_query.lower() in product_name.lower():
                 searchresults.append(data.iloc[index])
+                # print(data.iloc[index])
                 # sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
                 count +=1
             
@@ -49,9 +52,9 @@ def search():
             filteredsorted_results = sorted_results
        
             
-        print(search_query.lower())
-        print(searchresults)
-        print(count)
+        # print(search_query.lower())
+        # print(searchresults)
+        # print(count)
                 
         # lengthlist= len(searchresults)
         # print(searchresults)
@@ -66,8 +69,8 @@ def export_csv():
     print(df.info)
 
 # Export the DataFrame to a CSV file
-    df.to_csv('output.csv', index=False, encoding='utf-8-sig')  
-    filename = 'output.csv'
+    df.to_csv('filter_output.csv', index=False, encoding='utf-8-sig')  
+    filename = 'filter_output.csv'
     return send_file(filename , as_attachment= True)
 
 @app.route("/search/<product>", methods=[ "GET"] )
@@ -87,57 +90,84 @@ def viewresult(product):
 @app.route("/filter", methods=["POST", "GET"])
 
 def filter():
+    # var results is a global variable
     global results
+
+    #creating new variables for storing csv data
     results = []
-    select = request.form.get('category')
     data = []
     count = 0
 
+    # get category name from drop down list in html
+    select = request.form.get('category')
+   
+    # open CSV file
     with open("NLP_Dataset_Cut.csv", encoding="utf8") as file:
+        #read csv file
         reader = csv.reader(file)
+
+        #looping the csv file data
         for row in reader:
+            # get all information from column 1 to 6 and insert column 8 for filter display
             newRow = row[:6] 
             newRow.insert(6, row[8])
             
-            # edits = newRow[1].replace("/"," or ")
-            # newRow[1] = edits 
+            # convert all product names that have / to 'or' to allow url access
+            edits = newRow[1].replace("/"," or ")
+            newRow[1] = edits 
+            
+            # append newRow to data
             data.append(newRow)
         # print(data)
 
-
+        #loop the range of data length 
         for i in range(len(data)):
+            # check if category user chose match with the Category in the data column
             if select == data[i][2]:
+                # display only 50 data
                 if count == 50:
-                    print("break triggered")
                     break
                 else:
+                    # if count has not reached 50  continue appending data to results list for display
                     results.append(data[i])
                     count +=1
-        
-    return render_template("filter.html", select=select, results=results, count=count, selection=select)
+
+    # run the filter.html template and pass variables to the html    
+    return render_template("filter.html", select=select, results=results, count=count)
 
 @app.route("/export_filter", methods=["POST", "GET"])
 def export_filter():
 
+    #Convert results list to dataframe
     df = pd.DataFrame(results)
+
+    # add new header in dataframe
     df.columns = ['ASIN','Product', 'Category', 'Price', 'URL', 'Stars', 'Summary']
+
     # Export the DataFrame to a CSV file
-    df.to_csv('output.csv', index=False)  
+    df.to_csv('output.csv', index=False, encoding='utf-8-sig')  
     filename = 'output.csv'
     return send_file(filename , as_attachment= True)
 
 @app.route("/filter/<product>", methods=["GET"])
 def filter_next(product):
+    # initialize variables to pass to html
     name = ""
     reviews = ""
     sentiment = ""
     confidence = ""
     nlp_review = ""
+
+    #open csv file
     with open("NLP_Dataset_Cut.csv", encoding="utf8") as file:
+        # read csv file
         reader = csv.reader(file)
+
+        # loop csv file to retieve column 7,8,9,10
         for row in reader: 
             newRow = row[7:11]
 
+            # check if product name matches 
             if row[1].replace("/", " or ") == product:
                 name = row[1]
                 reviews = newRow[0]
@@ -145,7 +175,7 @@ def filter_next(product):
                 confidence = newRow[2]
                 nlp_review = newRow[3]
                
-        
+    # return the description.html template to display to user 
     return render_template('description.html', product=product, reviews=reviews, sentiment=sentiment, confidence=confidence, nlp_review = nlp_review, name=name)
 
 
