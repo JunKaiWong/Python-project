@@ -19,35 +19,28 @@
     <button type="submit">Export Category Results</button>
 </form>
 
-<!-- {{results}} -->
 <div class="talbe-responsive" style="margin-top: 10px;">
     <table>
-        <!-- <tr>
-            {% for col in header %}
-            <th>{{col}}</th>
-            {% endfor %}
-        </tr> -->
+        <!-- Table header -->
         <tr>
-            <th scope="col">ASIN</th>
+           
             <th scope="col">Product</th>
             <th scope="col">Category</th>
             <th scope="col">Price</th>
             <th scope="col">URL</th>
             <th scope="col">Stars</th>
-            <!-- <th scope="col">NLP_Reviews</th> -->
             <th scope="col">Summary</th>
-            <!-- <th scope="col">Sentiment</th>
-            <th scope="col">Confidence</th> -->
             
           </tr>
+          <!-- loop through list  -->
           {% for row in results %}
         <tr>
              {% for element in range(7) %}
 
-             {% if element == 4 %}
-             <td style ="white-space: normal;" ><a href ="{{row[element]}}" >ProductLink</a></td>  
+             {% if element == 3 %}
+             <td style ="white-space: normal;" ><a href ="{{row[element]}}" >Link</a></td>  
 
-             {% elif element == 1 %}
+             {% elif element == 0 %}
              <td style ="white-space: normal;" ><a href ="filter/{{row[element]}}" >{{row[element]}}</a></td>  
             
              {% else %}
