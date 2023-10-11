@@ -1,7 +1,6 @@
-from flask import Flask, render_template, url_for, request, Response, send_file, redirect
+from flask import Flask, render_template, request, send_file
 from flask_bootstrap import Bootstrap
 import pandas as pd
-from bs4 import BeautifulSoup
 import csv
 
 app = Flask(__name__)
@@ -14,56 +13,44 @@ filteredsorted_results = []
 def home():
         return render_template("index.html")
 
-@app.route("/products")
-def products():
-     with open("NLP_Dataset_Edits.csv", encoding="utf8") as file:
-        reader = csv.reader(file)
-        header = next(reader)
-        return render_template("products.html", header=header, rows=reader)
-
 
 @app.route("/search", methods=["POST", "GET"] )
 def search():
-
+    #make the search list as global variable 
     global filteredsorted_results
 
+    #check if there is any POST request on the HTML 
     if request.method == 'POST':
+        #get the POST request variable 
         search_query = request.form.get('dataresult')    
+        #initialised the lists into empty
         searchresults = []
         sorted_results=[]
-        count = 0
-        data = pd.read_csv('NLP_Dataset_Cut (1).csv')     
-
+        #read dataset
+        data = pd.read_csv('NLP_Dataset_Cut.csv')     
+        #use for loop to get the search results through Product name
         for index in data.index:
-            product_name = data['Product'][index].replace("/", " ")
+            product_name = data['Product'][index] 
+            #initialised the POST request variable and dataframe Product name into smaller case
             if search_query.lower() in product_name.lower():
+                #append the search result into searchresults list
                 searchresults.append(data.iloc[index])
-                # sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
-                count +=1
-            
+        #sort the searchresults list by Stars rating  
         sorted_results = sorted(searchresults, key = lambda x: x['Stars'], reverse=True)
-
+        #display on the top 50 product results in the searchresults list
         if len(sorted_results) >= 50:
             filteredsorted_results = sorted_results[:51]
+        # if the product results are less than 50, display all of the products
         else:
             filteredsorted_results = sorted_results
        
-            
-        print(search_query.lower())
-        print(searchresults)
-        print(count)
-                
-        # lengthlist= len(searchresults)
-        # print(searchresults)
-        # print(lengthlist)
-
-
+    #return the variables needed HTML
     return render_template("search.html",  filteredsorted_results = filteredsorted_results)
+
 @app.route("/export_csv" ,methods=['GET'])
 def export_csv():
 # Convert the list of dictionaries to a Pandas DataFrame
     df = pd.DataFrame(filteredsorted_results)
-    print(df.info)
 
 # Export the DataFrame to a CSV file
     df.to_csv('output.csv', index=False, encoding='utf-8-sig')  
@@ -72,15 +59,19 @@ def export_csv():
 
 @app.route("/search/<product>", methods=[ "GET"] )
 def viewresult(product):
+    #initialised the lists into empty
     productdisplay =[]
-    data = pd.read_csv('NLP_Dataset_Cut (1).csv')  
+    #read dataset
+    data = pd.read_csv('NLP_Dataset_Cut.csv')  
+    #use for loop to get the search results through 'ASIN'
     for index in data.index:
-        product_name = data['Product'][index]
-        if product in product_name.replace("/", " or "):
+        product_name = data['ASIN'][index]
+        #check if the ASIN from the product matches with ASIN's dataset
+        if product in product_name:
+            #append the result into productdisplay list
             productdisplay.append(data.iloc[index])
-    print(product)
-    print(productdisplay)
 
+    #return the variables needed HTML
     return render_template("searchdiscription.html", product=product, productdisplay=productdisplay )
 
 
