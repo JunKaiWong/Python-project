@@ -2,16 +2,241 @@ from flask import Flask, render_template, request, send_file
 from flask_bootstrap import Bootstrap
 import pandas as pd
 import csv
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import ast
+from io import BytesIO
+import base64
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
 filteredsorted_results = []
 
-@app.route("/")
-def home():
-        return render_template("DataVisualisation.html")
+def str_to_list(review_str):
+    return ast.literal_eval(review_str)
 
+@app.route("/" ,methods=["POST", "GET"])
+def home():
+
+    global graphlist
+        
+    df = pd.read_csv('NLP_Dataset_Cut.csv')  
+    #use for piechart and scattergraph
+    df2=df[['Category', 'Product']]
+    category_counts=df2.groupby('Category')['Product'].count().reset_index()
+    labels=category_counts['Category']
+    category_counts_data=category_counts['Product']
+
+    #use for histograph and bargraph
+    df3 = df[['Category', 'Stars']]
+    df3.groupby('Category').mean()
+
+    #use for intervalplot and subplot
+    df5=df[['Sentiment', 'Confidence']]
+    df5.groupby('Sentiment').mean()
+
+    total_products = category_counts_data.sum()
+
+    graphlist = []
+
+    if request.method == 'POST':
+
+        displaygraph = request.form.get('graphs')   
+
+        if displaygraph == "piechart":
+
+            total_products = category_counts_data.sum()
+
+            plt.pie(category_counts_data, labels=labels, autopct='%.1f%%',startangle=140)
+            plt.title('Product Distribution by Category')
+            plt.text(1.0, 0.0, f'Total Products: {total_products}', horizontalalignment='center', verticalalignment='center', fontsize=11, transform=plt.gca().transAxes)
+
+            # Save the graph as a PNG image
+            img = BytesIO()
+            plt.savefig(img, format='png')
+            img.seek(0)
+
+            # Embed the image data in the HTML
+            plot_url = base64.b64encode(img.read()).decode('utf-8')
+            graphlist.append(plot_url)
+
+        elif displaygraph == "histograph":
+
+            plt.figure(figsize=(8, 6))
+            plt.hist(df['Stars'], bins=5, color='skyblue', edgecolor='black', alpha=0.7)
+            plt.title('Star Rating Distribution')
+            plt.xlabel('Stars')
+            plt.ylabel('Count')
+            plt.ylim(0,3000)
+
+            # Save the graph as a PNG image
+            img = BytesIO()
+            plt.savefig(img, format='png')
+            img.seek(0)
+
+            # Embed the image data in the HTML
+            plot_url = base64.b64encode(img.read()).decode('utf-8')
+            graphlist.append(plot_url)
+
+        elif displaygraph == "bargraph":
+
+ 
+            category_means = df3.groupby('Category')['Stars'].mean().reset_index()
+
+            category_means = category_means.sort_values(by='Stars', ascending=False)
+            category_means.set_index('Category', inplace=True)
+            ax = category_means.plot(kind='bar', legend=False)
+
+            plt.xlabel('Category')
+            plt.ylabel('Average Rating')
+            plt.title('Average Rating by Category')
+
+            plt.xticks(rotation=0, fontsize=6)
+            plt.ylim(0,5)
+
+            # Save the graph as a PNG image
+            img = BytesIO()
+            plt.savefig(img, format='png')
+            img.seek(0)
+
+            # Embed the image data in the HTML
+            plot_url = base64.b64encode(img.read()).decode('utf-8')
+            graphlist.append(plot_url)
+
+        elif displaygraph == "scattergraph":
+
+            df4=df[['Category', 'Product', 'Reviews']]
+
+            df['Reviews'] = df['Reviews'].apply(str_to_list)
+
+            df['Reviews Sum Per Product'] = df['Reviews'].apply(lambda x: len(x))
+
+            df[['Category', 'Product', 'Reviews Sum Per Product']]
+
+            category_sum = df.groupby('Category')['Reviews Sum Per Product'].sum().reset_index()
+
+            result_df = pd.merge(category_counts, category_sum, on='Category')
+
+            result_df.rename(columns={'Product': 'Product Count', 'Reviews Sum Per Product': 'Reviews Sum'}, inplace=True)
+
+            plt.figure(figsize=(10, 6))
+            # Scatter plot
+            scatter = plt.scatter(result_df['Product Count'], result_df['Reviews Sum'], c=result_df['Category'].astype('category').cat.codes, cmap='viridis', s=100)
+            plt.xlabel('Product Count')
+            plt.ylabel('Reviews Count')
+            plt.title('Reviews Count vs. Product Count by Category')
+
+            # Create a custom colorbar with product category names
+            colorbar = plt.colorbar(scatter, label='Category')
+            category_names = result_df['Category'].unique()
+            colorbar.set_ticks(range(len(category_names)))
+            colorbar.set_ticklabels(category_names)
+
+            # Save the graph as a PNG image
+            img = BytesIO()
+            plt.savefig(img, format='png')
+            img.seek(0)
+
+            # Embed the image data in the HTML
+            plot_url = base64.b64encode(img.read()).decode('utf-8')
+            graphlist.append(plot_url)
+    
+        elif displaygraph == "intervalplot":
+           
+
+            plt.figure(figsize=(8, 6))
+            sns.histplot(df['Confidence'], kde=True, color='skyblue')
+            sns.kdeplot(df['Confidence'], color='red', linestyle='--', label='Kernel Density Estimate')
+
+            confidence_interval = np.percentile(df['Confidence'], [2.5, 97.5])
+            lower_bound, upper_bound = confidence_interval
+
+            # Add confidence interval lines to the plot
+            plt.axvline(lower_bound, color='green', linestyle=':', label='95% Confidence Interval')
+            plt.axvline(upper_bound, color='green', linestyle=':')
+
+            plt.xlabel('Confidence Values')
+            plt.ylabel('Number of Sentiments')
+            plt.title('Confidence Interval Plot')
+
+            plt.legend()
+
+            # Save the graph as a PNG image
+            img = BytesIO()
+            plt.savefig(img, format='png')
+            img.seek(0)
+
+        # Embed the image data in the HTML
+            plot_url = base64.b64encode(img.read()).decode('utf-8')
+            graphlist.append(plot_url)
+
+        elif displaygraph == "subplot":
+
+            plt.figure(figsize=(10, 6))
+
+            plt.subplot(1, 2, 1)
+            sns.boxplot(x='Sentiment', y='Confidence', data=df5[df5['Sentiment'] == 'Positive'])
+            plt.title('Positive Sentiment Confidence Levels')
+            plt.xlabel('Sentiment')
+            plt.ylabel('Confidence')
+
+            plt.subplot(1, 2, 2)
+            sns.boxplot(x='Sentiment', y='Confidence', data=df5[df5['Sentiment'] == 'Negative'])
+            plt.title('Negative Sentiment Confidence Levels')
+            plt.xlabel('Sentiment')
+            plt.ylabel('Confidence')
+
+            plt.tight_layout()
+
+            # Save the graph as a PNG image
+            img = BytesIO()
+            plt.savefig(img, format='png')
+            img.seek(0)
+
+        # Embed the image data in the HTML
+            plot_url = base64.b64encode(img.read()).decode('utf-8')
+            graphlist.append(plot_url)
+
+        elif displaygraph == "sentimentgraph":
+            sentiment_counts = df['Sentiment'].value_counts()
+
+            plt.figure(figsize=(8, 6))
+            sentiment_counts.plot(kind='bar', color='skyblue')
+            plt.title('Sentiment Distribution')
+            plt.xlabel('Sentiment')
+            plt.ylabel('Count')
+
+            # Save the graph as a PNG image
+            img = BytesIO()
+            plt.savefig(img, format='png')
+            img.seek(0)
+
+        # Embed the image data in the HTML
+            plot_url = base64.b64encode(img.read()).decode('utf-8')
+            graphlist.append(plot_url)
+
+    return render_template("DataVisualisation.html", graphlist = graphlist ) 
+
+@app.route("/exportgraph_csv" , methods=['GET'])
+def exportgraph_csv():
+
+    # Create a Pandas DataFrame from the plot_urls list
+    df = pd.DataFrame({'graphlist': graphlist})
+    
+     # Export the DataFrame to a CSV file
+    df.to_csv('graph.csv', index=False)
+
+    filename = 'graph.csv'
+
+    return send_file(filename , as_attachment= True)
+    
+
+
+@app.route("/test")
+def test():
+    return render_template('DataVisualisation(edited).html')
 
 @app.route("/search", methods=["POST", "GET"] )
 def search():
