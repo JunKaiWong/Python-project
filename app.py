@@ -77,7 +77,7 @@ def viewresult(product):
 @app.route("/filter", methods=["POST", "GET"])
 
 def filter():
-    # var results is a global variable
+    # var results is a global variable to be used for exporting
     global filterFullResults
 
     #creating new variables for storing csv data
@@ -138,6 +138,7 @@ def filter():
                     #append all the data to filterFullResults to be exported into csv
                     counter2 +=1
                     filterFullResults.append(newRowAll[index])
+                    # sort list based on rating 
                     filterFullResults = sorted(filterFullResults, key = lambda x: x[5], reverse=True )
            
                 
@@ -150,6 +151,7 @@ def export_filter():
 
     #Convert results list to dataframe
     df = pd.DataFrame(filterFullResults)
+    # add column header
     df.columns = ['ASIN','Product', 'Category', 'Price', 'URL', 'Stars','Reviews', 'NLP_Reviews', 'Summary', 'Sentiment', 'Confidence']
 
     # Export the DataFrame to a CSV file
