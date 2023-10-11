@@ -100,10 +100,12 @@ def filter():
 
     with open("NLP_Dataset_Cut.csv", encoding="utf8") as file:
         reader = csv.reader(file)
-        for row in reader: 
-            newRow = row[:7]
-            edits = newRow[1].replace("/"," or ")
-            newRow[1] = edits 
+        for row in reader:
+            newRow = row[:6] 
+            newRow.insert(6, row[8])
+            
+            # edits = newRow[1].replace("/"," or ")
+            # newRow[1] = edits 
             data.append(newRow)
         # print(data)
 
@@ -117,7 +119,7 @@ def filter():
                     results.append(data[i])
                     count +=1
         
-    return render_template("filter.html", select=select, results=results, count=count)
+    return render_template("filter.html", select=select, results=results, count=count, selection=select)
 
 @app.route("/export_filter", methods=["POST", "GET"])
 def export_filter():
