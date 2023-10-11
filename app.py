@@ -138,7 +138,7 @@ def filter():
                     #append all the data to filterFullResults to be exported into csv
                     counter2 +=1
                     filterFullResults.append(newRowAll[index])
-                    # filterFullResults = sorted(filterFullResults, key = lambda x: x[4], reverse=True )
+                    filterFullResults = sorted(filterFullResults, key = lambda x: x[5], reverse=True )
            
                 
 
