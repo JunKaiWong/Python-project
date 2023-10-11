@@ -1,0 +1,26 @@
+{% extends "index.html" %} 
+{% block content %}
+<table style="margin-top: 5%;">
+    {% for item in productdisplay %}
+    <tr>
+        <td>Product Name:</td>
+        <td>{{item.Product}}</td>
+    </tr>
+
+    <tr>
+        <td>Sentiment:</td>
+        <td>{{item.Sentiment}}</td>
+    </tr>
+
+    <tr>
+        <td>Reviews:</td>
+        <td>{{item.Reviews}}</td>
+    </tr>
+
+    <tr>
+        <td>Confidence:</td>
+        <td>{{item.Confidence}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

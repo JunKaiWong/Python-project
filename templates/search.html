@@ -20,7 +20,7 @@
   <tbody>
     <tr>
       {% for item in filteredsorted_results %}
-        <td >{{ item.Product }}</td>
+      <td > <a href ="search/{{item.Product}}">{{ item.Product }}</a></td>
         <td >{{ item.Category }}</td>
         <td >{{ item.Price }}</td>
         <td >{{ item.Stars  }}</td>
