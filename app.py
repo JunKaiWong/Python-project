@@ -3,6 +3,8 @@ from flask_bootstrap import Bootstrap
 import pandas as pd
 import csv
 import numpy as np
+import matplotlib
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import seaborn as sns
 import ast
@@ -11,39 +13,28 @@ import base64
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
-
+graphlist = []
 def str_to_list(review_str):
     return ast.literal_eval(review_str)
 
 @app.route("/" ,methods=["POST", "GET"])
 def home():
-
-    global graphlist
-        
-    df = pd.read_csv('NLP_Dataset_Cut.csv')  
-    #use for piechart and scattergraph
-    df2=df[['Category', 'Product']]
-    category_counts=df2.groupby('Category')['Product'].count().reset_index()
-    labels=category_counts['Category']
-    category_counts_data=category_counts['Product']
-
-    #use for histograph and bargraph
-    df3 = df[['Category', 'Stars']]
-    df3.groupby('Category').mean()
-
-    #use for intervalplot and subplot
-    df5=df[['Sentiment', 'Confidence']]
-    df5.groupby('Sentiment').mean()
-
-    total_products = category_counts_data.sum()
+  
 
     graphlist = []
 
     if request.method == 'POST':
 
         displaygraph = request.form.get('graphs')   
+       
 
         if displaygraph == "piechart":
+            df = pd.read_csv('NLP_Dataset_Cut.csv')  
+            #use for piechart and scattergraph
+            df2=df[['Category', 'Product']]
+            category_counts=df2.groupby('Category')['Product'].count().reset_index()
+            labels=category_counts['Category']
+            category_counts_data=category_counts['Product']
 
             total_products = category_counts_data.sum()
 
@@ -61,6 +52,8 @@ def home():
             graphlist.append(plot_url)
 
         elif displaygraph == "histograph":
+
+            df = pd.read_csv('NLP_Dataset_Cut.csv')  
 
             plt.figure(figsize=(8, 6))
             plt.hist(df['Stars'], bins=5, color='skyblue', edgecolor='black', alpha=0.7)
@@ -80,7 +73,10 @@ def home():
 
         elif displaygraph == "bargraph":
 
- 
+            df = pd.read_csv('NLP_Dataset_Cut.csv')  
+            df3 = df[['Category', 'Stars']]
+            df3.groupby('Category').mean()
+            
             category_means = df3.groupby('Category')['Stars'].mean().reset_index()
 
             category_means = category_means.sort_values(by='Stars', ascending=False)
@@ -104,6 +100,7 @@ def home():
             graphlist.append(plot_url)
 
         elif displaygraph == "scattergraph":
+            df = pd.read_csv('NLP_Dataset_Cut.csv') 
 
             df4=df[['Category', 'Product', 'Reviews']]
 
@@ -112,6 +109,9 @@ def home():
             df['Reviews Sum Per Product'] = df['Reviews'].apply(lambda x: len(x))
 
             df[['Category', 'Product', 'Reviews Sum Per Product']]
+            df2=df[['Category', 'Product']]
+
+            category_counts=df2.groupby('Category')['Product'].count().reset_index()
 
             category_sum = df.groupby('Category')['Reviews Sum Per Product'].sum().reset_index()
 
@@ -142,7 +142,7 @@ def home():
             graphlist.append(plot_url)
     
         elif displaygraph == "intervalplot":
-           
+            df = pd.read_csv('NLP_Dataset_Cut.csv') 
 
             plt.figure(figsize=(8, 6))
             sns.histplot(df['Confidence'], kde=True, color='skyblue')
@@ -171,6 +171,10 @@ def home():
             graphlist.append(plot_url)
 
         elif displaygraph == "subplot":
+            df = pd.read_csv('NLP_Dataset_Cut.csv') 
+              #use for subplot
+            df5=df[['Sentiment', 'Confidence']]
+            df5.groupby('Sentiment').mean()
 
             plt.figure(figsize=(10, 6))
 
@@ -198,6 +202,7 @@ def home():
             graphlist.append(plot_url)
 
         elif displaygraph == "sentimentgraph":
+            df = pd.read_csv('NLP_Dataset_Cut.csv') 
             sentiment_counts = df['Sentiment'].value_counts()
 
             plt.figure(figsize=(8, 6))
