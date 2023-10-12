@@ -13,20 +13,32 @@ import base64
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
-graphlist = []
+
+def str_to_list(review_str):
+    return ast.literal_eval(review_str)
+
+def modify_sentiment(row):
+    sentiment = row['Sentiment']
+    confidence = row['Confidence']
+    if confidence < 0.75:
+        return 'Neutral'
+    elif confidence >= 0.75 and sentiment==str('Positive'):
+        return 'Positive'
+    else:
+        return 'Negative'
+
+
+
 def str_to_list(review_str):
     return ast.literal_eval(review_str)
 
 @app.route("/" ,methods=["POST", "GET"])
 def home():
-  
-
     graphlist = []
 
     if request.method == 'POST':
 
         displaygraph = request.form.get('graphs')   
-       
 
         if displaygraph == "piechart":
             plt.clf()
@@ -85,14 +97,18 @@ def home():
 
             category_means = category_means.sort_values(by='Stars', ascending=False)
             category_means.set_index('Category', inplace=True)
+
             ax = category_means.plot(kind='bar', legend=False)
+
+            # Add grid lines
+            ax.yaxis.grid(True, linestyle='--', alpha=0.7, zorder=0)
 
             plt.xlabel('Category')
             plt.ylabel('Average Rating')
             plt.title('Average Rating by Category')
 
             plt.xticks(rotation=0, fontsize=6)
-            plt.ylim(0,5)
+            plt.ylim(0, 5)
 
             # Save the graph as a PNG image
             img = BytesIO()
@@ -107,17 +123,14 @@ def home():
             plt.clf()
             df = pd.read_csv('NLP_Dataset_Cut.csv') 
 
-            df4=df[['Category', 'Product', 'Reviews']]
-
             df['Reviews'] = df['Reviews'].apply(str_to_list)
 
             df['Reviews Sum Per Product'] = df['Reviews'].apply(lambda x: len(x))
 
             df[['Category', 'Product', 'Reviews Sum Per Product']]
             df2=df[['Category', 'Product']]
-
+            
             category_counts=df2.groupby('Category')['Product'].count().reset_index()
-
             category_sum = df.groupby('Category')['Reviews Sum Per Product'].sum().reset_index()
 
             result_df = pd.merge(category_counts, category_sum, on='Category')
@@ -125,7 +138,8 @@ def home():
             result_df.rename(columns={'Product': 'Product Count', 'Reviews Sum Per Product': 'Reviews Sum'}, inplace=True)
 
             plt.figure(figsize=(10, 6))
-            # Scatter plot
+
+           # Scatter plot
             scatter = plt.scatter(result_df['Product Count'], result_df['Reviews Sum'], c=result_df['Category'].astype('category').cat.codes, cmap='viridis', s=100)
             plt.xlabel('Product Count')
             plt.ylabel('Reviews Count')
@@ -136,6 +150,7 @@ def home():
             category_names = result_df['Category'].unique()
             colorbar.set_ticks(range(len(category_names)))
             colorbar.set_ticklabels(category_names)
+
 
             # Save the graph as a PNG image
             img = BytesIO()
@@ -172,7 +187,7 @@ def home():
             plt.savefig(img, format='png')
             img.seek(0)
 
-        # Embed the image data in the HTML
+            # Embed the image data in the HTML
             plot_url = base64.b64encode(img.read()).decode('utf-8')
             graphlist.append(plot_url)
 
@@ -204,50 +219,41 @@ def home():
             plt.savefig(img, format='png')
             img.seek(0)
 
-        # Embed the image data in the HTML
+            # Embed the image data in the HTML
             plot_url = base64.b64encode(img.read()).decode('utf-8')
             graphlist.append(plot_url)
 
         elif displaygraph == "sentimentgraph":
             plt.clf()
             df = pd.read_csv('NLP_Dataset_Cut.csv') 
+            # Create a new 'Modified Sentiment' column without overwriting 'Sentiment'
+            df['Modified Sentiment'] = df.apply(modify_sentiment, axis=1)
+
+            # Create a DataFrame 'modified_df' containing 'Modified Sentiment' and 'Confidence'
+            modified_df = df[['Modified Sentiment', 'Confidence']]
             sentiment_counts = df['Sentiment'].value_counts()
+            positive_sentiment_df = modified_df[modified_df['Modified Sentiment'] == 'Positive']
+
+            sentiment_counts = modified_df['Modified Sentiment'].value_counts()
 
             plt.figure(figsize=(8, 6))
             sentiment_counts.plot(kind='bar', color='skyblue')
             plt.title('Sentiment Distribution')
             plt.xlabel('Sentiment')
             plt.ylabel('Count')
+            plt.ylim(0,3500)
 
             # Save the graph as a PNG image
             img = BytesIO()
             plt.savefig(img, format='png')
             img.seek(0)
 
-        # Embed the image data in the HTML
+            # Embed the image data in the HTML
             plot_url = base64.b64encode(img.read()).decode('utf-8')
             graphlist.append(plot_url)
 
     return render_template("DataVisualisation.html", graphlist = graphlist ) 
 
-@app.route("/exportgraph_csv" , methods=['GET'])
-def exportgraph_csv():
-
-    # Create a Pandas DataFrame from the plot_urls list
-    df = pd.DataFrame({'graphlist': graphlist})
-    
-     # Export the DataFrame to a CSV file
-    df.to_csv('graph.csv', index=False)
-
-    filename = 'graph.csv'
-
-    return send_file(filename , as_attachment= True)
-    
-
-
-@app.route("/test")
-def test():
-    return render_template('DataVisualisation(edited).html')
 
 @app.route("/search", methods=["POST", "GET"] )
 def search():
@@ -288,8 +294,8 @@ def export_csv():
     df = pd.DataFrame(filteredsorted_results)
 
 # Export the DataFrame to a CSV file
-    df.to_csv('search_output.csv', index=False, encoding='utf-8-sig')  
-    filename = 'search_output.csv'
+    df.to_csv('csvfiles/search_output.csv', index=False, encoding='utf-8-sig')  
+    filename = 'csvfiles/search_output.csv'
     return send_file(filename , as_attachment= True)
 
 @app.route("/search/<product>", methods=[ "GET"] )
@@ -391,8 +397,8 @@ def export_filter():
     df.columns = ['ASIN','Product', 'Category', 'Price', 'URL', 'Stars','Reviews', 'NLP_Reviews', 'Summary', 'Sentiment', 'Confidence']
 
     # Export the DataFrame to a CSV file
-    df.to_csv('filter_output.csv', index=False, encoding='utf-8-sig')  
-    filename = 'filter_output.csv'
+    df.to_csv('csvfiles/filter_output.csv', index=False, encoding='utf-8-sig')  
+    filename = 'csvfiles/filter_output.csv'
     return send_file(filename , as_attachment= True)
 
 @app.route("/filter/<product>", methods=["GET"])
