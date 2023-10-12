@@ -29,6 +29,8 @@ def home():
        
 
         if displaygraph == "piechart":
+            plt.clf()
+
             df = pd.read_csv('NLP_Dataset_Cut.csv')  
             #use for piechart and scattergraph
             df2=df[['Category', 'Product']]
@@ -52,6 +54,7 @@ def home():
             graphlist.append(plot_url)
 
         elif displaygraph == "histograph":
+            plt.clf()
 
             df = pd.read_csv('NLP_Dataset_Cut.csv')  
 
@@ -72,6 +75,7 @@ def home():
             graphlist.append(plot_url)
 
         elif displaygraph == "bargraph":
+            plt.clf()
 
             df = pd.read_csv('NLP_Dataset_Cut.csv')  
             df3 = df[['Category', 'Stars']]
@@ -100,6 +104,7 @@ def home():
             graphlist.append(plot_url)
 
         elif displaygraph == "scattergraph":
+            plt.clf()
             df = pd.read_csv('NLP_Dataset_Cut.csv') 
 
             df4=df[['Category', 'Product', 'Reviews']]
@@ -142,6 +147,7 @@ def home():
             graphlist.append(plot_url)
     
         elif displaygraph == "intervalplot":
+            plt.clf()
             df = pd.read_csv('NLP_Dataset_Cut.csv') 
 
             plt.figure(figsize=(8, 6))
@@ -171,6 +177,7 @@ def home():
             graphlist.append(plot_url)
 
         elif displaygraph == "subplot":
+            plt.clf()
             df = pd.read_csv('NLP_Dataset_Cut.csv') 
               #use for subplot
             df5=df[['Sentiment', 'Confidence']]
@@ -202,6 +209,7 @@ def home():
             graphlist.append(plot_url)
 
         elif displaygraph == "sentimentgraph":
+            plt.clf()
             df = pd.read_csv('NLP_Dataset_Cut.csv') 
             sentiment_counts = df['Sentiment'].value_counts()
 
