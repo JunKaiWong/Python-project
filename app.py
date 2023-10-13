@@ -284,7 +284,7 @@ def search():
         # if the product results are less than 50, display all of the products
         else:
             filteredsorted_results = sorted_results
-       
+        print(filteredsorted_results)
     #return the variables needed HTML
     return render_template("search.html",  filteredsorted_results = filteredsorted_results)
 
@@ -294,8 +294,8 @@ def export_csv():
     df = pd.DataFrame(filteredsorted_results)
 
 # Export the DataFrame to a CSV file
-    df.to_csv('csvfiles/search_output.csv', index=False, encoding='utf-8-sig')  
-    filename = 'csvfiles/search_output.csv'
+    df.to_csv('csvoutput/search_output.csv', index=False, encoding='utf-8-sig')  
+    filename = 'csvoutput/search_output.csv'
     return send_file(filename , as_attachment= True)
 
 @app.route("/search/<product>", methods=[ "GET"] )
@@ -397,8 +397,8 @@ def export_filter():
     df.columns = ['ASIN','Product', 'Category', 'Price', 'URL', 'Stars','Reviews', 'NLP_Reviews', 'Summary', 'Sentiment', 'Confidence']
 
     # Export the DataFrame to a CSV file
-    df.to_csv('csvfiles/filter_output.csv', index=False, encoding='utf-8-sig')  
-    filename = 'csvfiles/filter_output.csv'
+    df.to_csv('csvoutput/filter_output.csv', index=False, encoding='utf-8-sig')  
+    filename = 'csvoutput/filter_output.csv'
     return send_file(filename , as_attachment= True)
 
 @app.route("/filter/<product>", methods=["GET"])
